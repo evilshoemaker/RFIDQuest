@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Игра квест</title>
+	<style type="text/css">
+		body{
+			margin: 0;
+			padding: 0;
+			background-color: #303030;
+			color: #f7f7f7;
+			font-family: 'Roboto', sans-serif;
+		}
+		#countainer {
+			width: 1200px;
+			margin: 0;
+  			transform: translate(-50%, -50%);
+  			position: absolute; 
+  			top: 50%; 
+  			left: 50%;
+		}
+		h1 {
+			text-align: center;
+			font-size: 40px;
+		}
+		table{
+			margin: 0 auto;
+			font-size: 26px;
+			border-collapse: collapse;
+			width: 400px
+		}
+		tr{
+			border-bottom: 1px solid #ffb41f;
+			padding: 10px 5px;
+		}
+		td{
+			width: 20%;
+			padding: 10px 55px;
+		}
+	</style>
+</head>
+<body>
+	<div id="countainer">
+			<table id="tab_gamer"></table>
+	<script>
+		function httpGetAsync(theUrl, callback)
+		{
+		    var request = new XMLHttpRequest();
+		    request.onreadystatechange = function() { 
+		        if (request.readyState == 4 && request.status == 200)
+		            callback(request.responseText);
+		    }
+		    request.open("GET", theUrl, true); // true for asynchronous 
+		    request.send(null);
+		}
+		function statrtTestTimer()
+		{
+		  setTimeout(function run() {
+		  	httpGetAsync("/get_gamer_info", function(data){
+					//console.log(data);
+					var json = JSON.parse(data);
+						document.getElementById('tab_gamer').innerHTML = '';
+						for(var i=0; i<json.length; i++){
+							var pl = json[i];
+							  var row = document.createElement('tr');
+							  row.innerHTML = "<td>" + pl.name + "</td><td>" + pl.hp + "</td>";
+							  if (pl.hp == 0){
+									row.setAttribute("style","background-color:#b00000");
+							  }
+							  document.getElementById('tab_gamer').appendChild(row);
+						}
+				});
+		      	setTimeout(run, 1000);
+		  }, 1000);
+		}
+		statrtTestTimer();
+	</script>
+</body>
+</html>
