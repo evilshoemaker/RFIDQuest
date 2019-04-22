@@ -13,7 +13,7 @@ try:
 except RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
-RELAY_PIN = 5
+RELAY_PIN = 8
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -102,8 +102,11 @@ def close_door():
     global is_door_open
 
     is_door_open = False
-    GPIO.output(RELAY_PIN, GPIO.HIGH)
-    print('Close door')
+    try:
+        GPIO.output(RELAY_PIN, 1)
+        print('Close door')
+    except:
+        pass
 
 def open_door():
     global is_door_open
@@ -112,9 +115,12 @@ def open_door():
         return
 
     is_door_open = True
-    GPIO.output(RELAY_PIN, GPIO.LOW)
-    print('Open door')
-    
+    try:
+        GPIO.output(RELAY_PIN, 0)
+        print('Open door')
+    except:
+        pass
+
     Timer(10, close_door, ()).start()
 
     pass
@@ -175,9 +181,12 @@ def start_rfid_reader():
     threading.Thread(target=rfid_reader2_receive_thread).start()
 
 def gpio_init():
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.LOW)
+    try:
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(RELAY_PIN, GPIO.OUT, initial=1)
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
     start_rfid_reader()
