@@ -8,6 +8,12 @@ import time
 from pyrfid import PyRfid
 import json
 
+try:
+    import RPi.GPIO as GPIO
+except RuntimeError:
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+
+RELAY_PIN = 5
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -96,6 +102,7 @@ def close_door():
     global is_door_open
 
     is_door_open = False
+    GPIO.output(RELAY_PIN, GPIO.HIGH)
     print('Close door')
 
 def open_door():
@@ -105,6 +112,7 @@ def open_door():
         return
 
     is_door_open = True
+    GPIO.output(RELAY_PIN, GPIO.LOW)
     print('Open door')
     
     Timer(10, close_door, ()).start()
@@ -166,6 +174,10 @@ def start_rfid_reader():
     threading.Thread(target=rfid_reader1_receive_thread).start()
     threading.Thread(target=rfid_reader2_receive_thread).start()
 
+def gpio_init():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.LOW)
 
 if __name__ == '__main__':
     start_rfid_reader()
