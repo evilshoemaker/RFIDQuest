@@ -14,6 +14,8 @@ except RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
 RELAY_PIN = 8
+RED_LED_PIN = 3
+GREEN_LED_PIN = 5
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -104,6 +106,8 @@ def close_door():
     is_door_open = False
     try:
         GPIO.output(RELAY_PIN, 1)
+        GPIO.output(RED_LED_PIN, 0)
+        GPIO.output(GREEN_LED_PIN, 1)
         print('Close door')
     except:
         pass
@@ -117,6 +121,8 @@ def open_door():
     is_door_open = True
     try:
         GPIO.output(RELAY_PIN, 0)
+        GPIO.output(RED_LED_PIN, 1)
+        GPIO.output(GREEN_LED_PIN, 0)
         print('Open door')
     except:
         pass
@@ -185,6 +191,8 @@ def gpio_init():
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(RELAY_PIN, GPIO.OUT, initial=1)
+        GPIO.setup(RED_LED_PIN, GPIO.OUT, initial=0)
+        GPIO.setup(GREEN_LED_PIN, GPIO.OUT, initial=1)
     except Exception as e:
         print(e)
 
