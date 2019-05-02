@@ -10,7 +10,7 @@ import json
 
 try:
     import RPi.GPIO as GPIO
-except RuntimeError:
+except:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
 RELAY_PIN = 8
@@ -31,19 +31,20 @@ last_rfid_id = None
 last_rfid_time = time.time()
 is_door_open = False
 
+admin_key = '0014003108'
+
 def reset_game():
     gamers.clear()
-    #for i in range(1, 16):
-    #    gamers['player' + str(i)] = { 'name' : '', 'hp' : 5 }
-    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '4865484854' }
-    gamers['player2'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player3'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player4'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player5'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player6'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player7'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player8'] = { 'name' : '', 'hp' : 5, 'id' : '' }
-    gamers['player9'] = { 'name' : '', 'hp' : 5, 'id' : '' }
+
+    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0014182826' }
+    gamers['player2'] = { 'name' : '', 'hp' : 5, 'id' : '0014025591' }
+    gamers['player3'] = { 'name' : '', 'hp' : 5, 'id' : '0014020111' }
+    gamers['player4'] = { 'name' : '', 'hp' : 5, 'id' : '0014107774' }
+    gamers['player5'] = { 'name' : '', 'hp' : 5, 'id' : '0014025594' }
+    gamers['player6'] = { 'name' : '', 'hp' : 5, 'id' : '0014004755' }
+    gamers['player7'] = { 'name' : '', 'hp' : 5, 'id' : '0014022421' }
+    gamers['player8'] = { 'name' : '', 'hp' : 5, 'id' : '0007400163' }
+    gamers['player9'] = { 'name' : '', 'hp' : 5, 'id' : '0014107095' }
     gamers['player10'] = { 'name' : '', 'hp' : 5, 'id' : '' }
     gamers['player11'] = { 'name' : '', 'hp' : 5, 'id' : '' }
     gamers['player12'] = { 'name' : '', 'hp' : 5, 'id' : '' }
@@ -109,8 +110,8 @@ def close_door():
         GPIO.output(RED_LED_PIN, 0)
         GPIO.output(GREEN_LED_PIN, 1)
         print('Close door')
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
 def open_door():
     global is_door_open
@@ -124,8 +125,8 @@ def open_door():
         GPIO.output(RED_LED_PIN, 1)
         GPIO.output(GREEN_LED_PIN, 0)
         print('Open door')
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
     Timer(10, close_door, ()).start()
 
@@ -135,14 +136,20 @@ def rfid_reader(id):
     global last_rfid_time
     global last_rfid_id
     global gamers
+    global admin_key
+    global is_door_open
 
-    if (last_rfid_id == id and (time.time() - last_rfid_time) < 10) and is_door_open == True:
+    if (last_rfid_id == id and (time.time() - last_rfid_time) < 10) or is_door_open == True:
         last_rfid_time = time.time()
         return
     
     last_rfid_time = time.time()
     last_rfid_id = id
     #print(id)
+
+    if id == admin_key and id != '':
+        open_door()
+        return
 
     for key in gamers:
         if gamers[key]['id'] == id and gamers[key]['name'] != '':
@@ -155,7 +162,7 @@ def rfid_reader1_receive_thread():
     while rfid_reader1:
         try:
             if (rfid_reader1.readTag() == True):
-                rfid_reader(rfid_reader1.rawTag)
+                rfid_reader(rfid_reader1.tagId)
         except Exception as e:
             print(e)
 
@@ -163,7 +170,7 @@ def rfid_reader2_receive_thread():
     while rfid_reader2:
         try:
             if (rfid_reader2.readTag() == True):
-                rfid_reader(rfid_reader2.rawTag)
+                rfid_reader(rfid_reader2.tagId)
         except Exception as e:
             print(e)
 
@@ -178,9 +185,11 @@ def start_rfid_reader():
     #    print(port.device)
 
     if len(serial_port_list) > 0:
+        print('Begin '+ serial_port_list[0].device)
         rfid_reader1 = PyRfid(serial_port_list[0].device, 9600)
 
     if len(serial_port_list) > 1:
+        print('Begin '+ serial_port_list[1].device)
         rfid_reader2 = PyRfid(serial_port_list[1].device, 9600)
 
     threading.Thread(target=rfid_reader1_receive_thread).start()
@@ -197,6 +206,7 @@ def gpio_init():
         print(e)
 
 if __name__ == '__main__':
+    gpio_init()
     start_rfid_reader()
     reset_game()
     load_gamers_from_file()
