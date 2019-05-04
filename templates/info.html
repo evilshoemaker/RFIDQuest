@@ -65,7 +65,7 @@
 						for(var i=0; i<json.length; i++){
 							var pl = json[i];
 							  var row = document.createElement('tr');
-							  row.innerHTML = "<td>" + pl.name + "</td><td align=\"right\">" + pl.hp + "</td>";
+							  row.innerHTML = "<td>" + (i + 1) + " " + + pl.name + "</td><td align=\"right\">" + pl.hp + "</td>";
 							  if (pl.hp == 0){
 									row.setAttribute("style","background-color:#b00000");
 							  }

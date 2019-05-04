@@ -7,13 +7,17 @@ from threading import Timer
 import time
 from pyrfid import PyRfid
 import json
+import logging
+
+logging.basicConfig(filename="log.txt", level=logging.INFO)
 
 try:
     import RPi.GPIO as GPIO
 except:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+    logging.error("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
 
-RELAY_PIN = 8
+RELAY_PIN = 11
 RED_LED_PIN = 3
 GREEN_LED_PIN = 5
 
@@ -36,7 +40,8 @@ admin_key = '0014003108'
 def reset_game():
     gamers.clear()
 
-    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0014182826' }
+    #gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0014182826' }
+    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0000370012' }
     gamers['player2'] = { 'name' : '', 'hp' : 5, 'id' : '0014025591' }
     gamers['player3'] = { 'name' : '', 'hp' : 5, 'id' : '0014020111' }
     gamers['player4'] = { 'name' : '', 'hp' : 5, 'id' : '0014107774' }
@@ -110,8 +115,10 @@ def close_door():
         GPIO.output(RED_LED_PIN, 0)
         GPIO.output(GREEN_LED_PIN, 1)
         print('Close door')
+        logging.info('Close door')
     except Exception as e:
         print(e)
+        logging.error(e)
 
 def open_door():
     global is_door_open
@@ -125,8 +132,10 @@ def open_door():
         GPIO.output(RED_LED_PIN, 1)
         GPIO.output(GREEN_LED_PIN, 0)
         print('Open door')
+        logging.info('Open door')
     except Exception as e:
         print(e)
+        logging.error(e)
 
     Timer(10, close_door, ()).start()
 
@@ -145,7 +154,8 @@ def rfid_reader(id):
     
     last_rfid_time = time.time()
     last_rfid_id = id
-    #print(id)
+    print(id)
+    logging.info(id)
 
     if id == admin_key and id != '':
         open_door()
@@ -162,23 +172,26 @@ def rfid_reader1_receive_thread():
     while rfid_reader1:
         try:
             if (rfid_reader1.readTag() == True):
-                rfid_reader(rfid_reader1.tagId)
+                rfid_reader(str(rfid_reader1.tagId))
         except Exception as e:
             print(e)
+            logging.error(e)
 
 def rfid_reader2_receive_thread():
     while rfid_reader2:
         try:
             if (rfid_reader2.readTag() == True):
-                rfid_reader(rfid_reader2.tagId)
+                rfid_reader(str(rfid_reader2.tagId))
         except Exception as e:
             print(e)
+            logging.error(e)
 
 def start_rfid_reader():
     global rfid_reader1
     global rfid_reader2
 
     serial_port_list = list(serial.tools.list_ports.grep('ttyUSB*'))
+    
     #print(len(serial_port_list))
 
     #for port in serial_port_list:
@@ -186,10 +199,12 @@ def start_rfid_reader():
 
     if len(serial_port_list) > 0:
         print('Begin '+ serial_port_list[0].device)
+        logging.info('Begin '+ serial_port_list[0].device)
         rfid_reader1 = PyRfid(serial_port_list[0].device, 9600)
 
     if len(serial_port_list) > 1:
         print('Begin '+ serial_port_list[1].device)
+        logging.info('Begin '+ serial_port_list[1].device)
         rfid_reader2 = PyRfid(serial_port_list[1].device, 9600)
 
     threading.Thread(target=rfid_reader1_receive_thread).start()
@@ -204,6 +219,7 @@ def gpio_init():
         GPIO.setup(GREEN_LED_PIN, GPIO.OUT, initial=1)
     except Exception as e:
         print(e)
+        logging.error(e)
 
 if __name__ == '__main__':
     gpio_init()
