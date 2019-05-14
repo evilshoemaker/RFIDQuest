@@ -40,8 +40,8 @@ admin_key = '0014003108'
 def reset_game():
     gamers.clear()
 
-    #gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0014182826' }
-    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0000370012' }
+    gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0014182826' }
+    #gamers['player1'] = { 'name' : '', 'hp' : 5, 'id' : '0000370012' }
     gamers['player2'] = { 'name' : '', 'hp' : 5, 'id' : '0014025591' }
     gamers['player3'] = { 'name' : '', 'hp' : 5, 'id' : '0014020111' }
     gamers['player4'] = { 'name' : '', 'hp' : 5, 'id' : '0014107774' }

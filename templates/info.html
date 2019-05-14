@@ -36,8 +36,12 @@
 			padding: 10px 5px;
 		}
 		td{
-			width: 20%;
-			padding: 10px 55px;
+			/*width: 20%;*/
+			padding: 10px 20px;
+		}
+		.td-name {
+			width: 100%;
+			padding: 10px 10px;
 		}
 	</style>
 </head>
@@ -65,7 +69,7 @@
 						for(var i=0; i<json.length; i++){
 							var pl = json[i];
 							  var row = document.createElement('tr');
-							  row.innerHTML = "<td>" + (i + 1) + " " + + pl.name + "</td><td align=\"right\">" + pl.hp + "</td>";
+							  row.innerHTML = "<td align=\"center\">" + (i + 1) + "</td><td align=\"left\" class=\"td-name\">" +  pl.name + "</td><td align=\"center\">" + pl.hp + "</td>";
 							  if (pl.hp == 0){
 									row.setAttribute("style","background-color:#b00000");
 							  }
